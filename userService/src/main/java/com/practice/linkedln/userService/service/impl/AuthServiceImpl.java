@@ -8,7 +8,6 @@ import com.practice.linkedln.userService.dto.SignUpRequestDto;
 import com.practice.linkedln.userService.dto.UserDto;
 import com.practice.linkedln.userService.entity.User;
 import com.practice.linkedln.userService.exception.BadRequestException;
-import com.practice.linkedln.userService.exception.ResourceNotFoundException;
 import com.practice.linkedln.userService.repository.UserRepository;
 import com.practice.linkedln.userService.service.AuthService;
 import com.practice.linkedln.userService.service.JwtService;
