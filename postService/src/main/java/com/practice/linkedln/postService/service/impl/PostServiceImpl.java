@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.practice.linkedln.postService.auth.AuthContextHolder;
+import com.practice.linkedln.postService.client.ConnectionServiceClient;
+import com.practice.linkedln.postService.dto.PersonDto;
 import com.practice.linkedln.postService.dto.PostCreateRequestDto;
 import com.practice.linkedln.postService.dto.PostDto;
 import com.practice.linkedln.postService.entity.Post;
@@ -23,6 +26,7 @@ public class PostServiceImpl implements PostService {
 
     private final ModelMapper modelMapper;
     private final PostRepository postRepository;
+    private final ConnectionServiceClient connectionServiceClient;
 
     @Override
     public PostDto creatPost(PostCreateRequestDto postCreatRequestDto, Long userId) {
@@ -37,6 +41,14 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto getPostById(Long postId) {
         log.info("Getting post by Id with Id " + postId);
+
+        Long userId = AuthContextHolder.getCurrentUserId();
+
+        List<PersonDto> personDtoList = connectionServiceClient.getFistDegreeConnections(userId);
+        log.info("personDtoList "+personDtoList.size());
+        for (PersonDto personDto : personDtoList) {
+            log.info("personDtoList "+personDto.getName());
+        }
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new ResourceNotFoundException("Post not found with id " + postId));
 
