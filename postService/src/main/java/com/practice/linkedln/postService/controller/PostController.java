@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.practice.linkedln.postService.auth.AuthContextHolder;
 import com.practice.linkedln.postService.dto.PostCreateRequestDto;
 import com.practice.linkedln.postService.dto.PostDto;
 import com.practice.linkedln.postService.service.PostService;
@@ -38,6 +40,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostDto> getPost(@PathVariable Long postId){
+        log.info("User ID {} "+AuthContextHolder.getCurrentUserId());
         PostDto postDto = postService.getPostById(postId);
         return new ResponseEntity<>(postDto,HttpStatus.OK);
     }
