@@ -1,4 +1,4 @@
-package com.practice.linkedln.postService.auth;
+package com.practice.linkedln.ConnectionsService.auth;
 
 public class AuthContextHolder {
 
