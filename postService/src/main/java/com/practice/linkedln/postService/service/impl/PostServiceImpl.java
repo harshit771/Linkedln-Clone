@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.practice.linkedln.postService.auth.AuthContextHolder;
@@ -27,6 +28,8 @@ public class PostServiceImpl implements PostService {
     private final ModelMapper modelMapper;
     private final PostRepository postRepository;
     private final ConnectionServiceClient connectionServiceClient;
+    private final KafkaTemplate kafkaTemplate;
+
 
     @Override
     public PostDto creatPost(PostCreateRequestDto postCreatRequestDto, Long userId) {
@@ -34,6 +37,7 @@ public class PostServiceImpl implements PostService {
         Post post = modelMapper.map(postCreatRequestDto, Post.class);
         post.setUserId(userId);
         post = postRepository.save(post);
+
         log.info("PostService :: createPost method ended ");
         return modelMapper.map(post, PostDto.class);
     }
