@@ -7,6 +7,7 @@ import lombok.*;
 public class PostLikedEvent {
 
     private Long postId;
+    private Long postOwnerId;
     private Long likedByUserId;
 
 }

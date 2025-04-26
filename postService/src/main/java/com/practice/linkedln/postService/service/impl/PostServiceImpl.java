@@ -7,12 +7,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import com.practice.linkedln.postService.auth.AuthContextHolder;
+
 import com.practice.linkedln.postService.client.ConnectionServiceClient;
 import com.practice.linkedln.postService.dto.PersonDto;
 import com.practice.linkedln.postService.dto.PostCreateRequestDto;
 import com.practice.linkedln.postService.dto.PostDto;
 import com.practice.linkedln.postService.entity.Post;
+import com.practice.linkedln.postService.event.PostCreatedEvent;
 import com.practice.linkedln.postService.exception.ResourceNotFoundException;
 import com.practice.linkedln.postService.repository.PostRepository;
 import com.practice.linkedln.postService.service.PostService;
@@ -28,8 +29,7 @@ public class PostServiceImpl implements PostService {
     private final ModelMapper modelMapper;
     private final PostRepository postRepository;
     private final ConnectionServiceClient connectionServiceClient;
-    private final KafkaTemplate kafkaTemplate;
-
+    private final KafkaTemplate<Long, PostCreatedEvent> postCreatedKafkaTemplate;
 
     @Override
     public PostDto creatPost(PostCreateRequestDto postCreatRequestDto, Long userId) {
@@ -38,6 +38,18 @@ public class PostServiceImpl implements PostService {
         post.setUserId(userId);
         post = postRepository.save(post);
 
+        List<PersonDto> personList = connectionServiceClient.getFistDegreeConnections(userId);
+        
+        //sending notification to each connection
+        for (PersonDto personDto : personList) {
+            PostCreatedEvent createdEvent= PostCreatedEvent.builder()
+                                        .postId(post.getId())
+                                        .userId(personDto.getUserId())
+                                        .ownerUserId(userId)
+                                        .content(post.getContent()).build();
+            postCreatedKafkaTemplate.send("post_created_topic",createdEvent);
+        }
+
         log.info("PostService :: createPost method ended ");
         return modelMapper.map(post, PostDto.class);
     }
@@ -45,14 +57,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto getPostById(Long postId) {
         log.info("Getting post by Id with Id " + postId);
-
-        Long userId = AuthContextHolder.getCurrentUserId();
-
-        List<PersonDto> personDtoList = connectionServiceClient.getFistDegreeConnections(userId);
-        log.info("personDtoList "+personDtoList.size());
-        for (PersonDto personDto : personDtoList) {
-            log.info("personDtoList "+personDto.getName());
-        }
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new ResourceNotFoundException("Post not found with id " + postId));
 
@@ -63,11 +67,10 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> getAllPostOfUser(Long userId) {
         log.info("Getting all post of user with user Id " + userId);
         List<Post> postList = postRepository.findByUserId(userId);
-        if(postList == null || postList.size() == 0){
-            throw new ResourceNotFoundException("No post found related to user id "+userId);
+        if (postList == null || postList.size() == 0) {
+            throw new ResourceNotFoundException("No post found related to user id " + userId);
         }
-        return postList.stream().map((element) 
-                    -> modelMapper.map(element, PostDto.class)).collect(Collectors.toList());
+        return postList.stream().map((element) -> modelMapper.map(element, PostDto.class)).collect(Collectors.toList());
     }
 
 }
