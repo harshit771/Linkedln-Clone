@@ -1,10 +1,15 @@
 spring:
   kafka:
-      bootstrapServers: localhost:9092
-      consumer:
-        group-id: ${spring.application.name}
-        key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
-        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json:
-          trusted.packages: com.practice.linkedln.*
+    bootstrapServers: localhost:9092
+    consumer:
+      group-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    properties:
+      spring:
+        json:
+          trusted:
+            packages: com.practice.linkedln.*
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
