@@ -26,7 +26,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
-    private final KafkaTemplate kafkaTemplate;
+    private final KafkaTemplate<Long, UserCreatedEvent> kafkaTemplate;
 
     @Override
     public UserDto signUp(SignUpRequestDto signupRequestDto) {
@@ -47,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
         
         kafkaTemplate.send("user_created_topic",userCreatedEvent);
-        
+
         return modelMapper.map(user, UserDto.class);
 
     }

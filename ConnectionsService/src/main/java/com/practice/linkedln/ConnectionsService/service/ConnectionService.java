@@ -8,4 +8,10 @@ public interface ConnectionService {
 
     List<Person> getFirstDegreeConnections(Long userId);
 
+    public void sendConnectionRequest(Long receiverId);
+
+    public void acceptConnectionRequest(Long senderId);
+
+    public void rejectConnectionRequest(Long senderId);
+
 }
