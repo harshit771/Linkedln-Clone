@@ -1,12 +1,14 @@
 package com.practice.linkedln.userService.service.impl;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.practice.linkedln.userService.dto.LoginRequestDto;
 import com.practice.linkedln.userService.dto.SignUpRequestDto;
 import com.practice.linkedln.userService.dto.UserDto;
 import com.practice.linkedln.userService.entity.User;
+import com.practice.linkedln.userService.event.UserCreatedEvent;
 import com.practice.linkedln.userService.exception.BadRequestException;
 import com.practice.linkedln.userService.repository.UserRepository;
 import com.practice.linkedln.userService.service.AuthService;
@@ -24,6 +26,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
+    private final KafkaTemplate kafkaTemplate;
 
     @Override
     public UserDto signUp(SignUpRequestDto signupRequestDto) {
@@ -39,6 +42,12 @@ public class AuthServiceImpl implements AuthService {
 
         user = userRepository.save(user);
 
+        UserCreatedEvent userCreatedEvent = UserCreatedEvent.builder().name(user.getName())
+                                                .userId(user.getId()).build();
+
+        
+        kafkaTemplate.send("user_created_topic",userCreatedEvent);
+        
         return modelMapper.map(user, UserDto.class);
 
     }
