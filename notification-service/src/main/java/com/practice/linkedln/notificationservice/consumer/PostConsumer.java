@@ -36,7 +36,7 @@ public class PostConsumer {
     @KafkaListener(topics = "post_liked_topic")
     public void handlePostLiked(PostLikedEvent postLikedEvent){
 
-        String message = String.format("User with id has liked your post with id ", 
+        String message = String.format("User with id %d has liked your post with id %d", 
                 postLikedEvent.getLikedByUserId(),postLikedEvent.getPostId());
         
         Notification notification = Notification.builder()
