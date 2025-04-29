@@ -9,3 +9,7 @@ cloudinary:
   cloud-name: 
   api-key: 
   api-secret: 
+
+gcloud:
+  storage-bucket-name: 
+  storage-access-key: 
