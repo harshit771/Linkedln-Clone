@@ -2,15 +2,12 @@ package com.practice.linkedln.postService.controller;
 
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.practice.linkedln.postService.auth.AuthContextHolder;
 import com.practice.linkedln.postService.dto.PostCreateRequestDto;
 import com.practice.linkedln.postService.dto.PostDto;
-import com.practice.linkedln.postService.exception.ApiError;
 import com.practice.linkedln.postService.exception.BadRequestException;
 import com.practice.linkedln.postService.service.PostService;
 
