@@ -2,21 +2,30 @@ package com.practice.linkedln.postService.controller;
 
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.practice.linkedln.postService.auth.AuthContextHolder;
 import com.practice.linkedln.postService.dto.PostCreateRequestDto;
 import com.practice.linkedln.postService.dto.PostDto;
+import com.practice.linkedln.postService.exception.ApiError;
+import com.practice.linkedln.postService.exception.BadRequestException;
 import com.practice.linkedln.postService.service.PostService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,13 +36,25 @@ import lombok.extern.slf4j.Slf4j;
 public class PostController {
 
     private final PostService postService;
+    private final ObjectMapper modelMapper;
 
-    @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostCreateRequestDto postCreatRequestDto ,
-                                        HttpServletRequest httpServletRequest){
-        PostDto postDto = postService.creatPost(postCreatRequestDto , 1L);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostDto> createPost(@RequestPart("post") String postJson,
+                                               @RequestPart("file") MultipartFile file ){
 
+        PostCreateRequestDto postCreatRequestDto;
+        try {
+            postCreatRequestDto = modelMapper.readValue(postJson, PostCreateRequestDto.class);
+            log.info("content value :{} "+postCreatRequestDto.getContent());                             
+        PostDto postDto = postService.creatPost(postCreatRequestDto,file);
         return new ResponseEntity<>(postDto, HttpStatus.CREATED);
+        } catch (JsonMappingException e) {
+            log.error("Exception JsonMappingException {} "+e.getLocalizedMessage());
+            throw new BadRequestException("Error "+e.getLocalizedMessage());
+        } catch (JsonProcessingException e) {
+            log.error("Exception JsonProcessingException {} "+e.getLocalizedMessage());
+            throw new BadRequestException("Error "+e.getLocalizedMessage());
+        }
         
     }
 

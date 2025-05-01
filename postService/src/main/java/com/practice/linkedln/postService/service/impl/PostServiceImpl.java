@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-
+import com.practice.linkedln.postService.auth.AuthContextHolder;
 import com.practice.linkedln.postService.client.ConnectionServiceClient;
+import com.practice.linkedln.postService.client.UploaderClient;
 import com.practice.linkedln.postService.dto.PersonDto;
 import com.practice.linkedln.postService.dto.PostCreateRequestDto;
 import com.practice.linkedln.postService.dto.PostDto;
@@ -30,12 +33,18 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final ConnectionServiceClient connectionServiceClient;
     private final KafkaTemplate<Long, PostCreatedEvent> postCreatedKafkaTemplate;
+    private final UploaderClient uploaderClient;
 
     @Override
-    public PostDto creatPost(PostCreateRequestDto postCreatRequestDto, Long userId) {
+    public PostDto creatPost(PostCreateRequestDto postCreatRequestDto, MultipartFile file) {
+        Long userId= AuthContextHolder.getCurrentUserId();
         log.info("PostService :: createPost method started ");
+
+        ResponseEntity<String> imageUrl = uploaderClient.upload(file);
+        log.info("Image URL : {} "+imageUrl.getBody());
         Post post = modelMapper.map(postCreatRequestDto, Post.class);
         post.setUserId(userId);
+        post.setImageUrl(imageUrl.getBody());
         post = postRepository.save(post);
 
         List<PersonDto> personList = connectionServiceClient.getFistDegreeConnections(userId);
