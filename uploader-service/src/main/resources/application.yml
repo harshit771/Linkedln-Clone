@@ -13,4 +13,4 @@ cloudinary:
 gcloud:
   storage-bucket-name: 
   storage-access-key: 
-    
+  

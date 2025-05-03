@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.practice.linkedln.postService.dto.PersonDto;
 
-@FeignClient(name="connection-service",path = "/connections")
+@FeignClient(name="connection-service",path = "/connections" , url = "${CONNECTIONS_SERVICE_URI:}")
 public interface ConnectionServiceClient {
 
     @GetMapping("/core/{userId}/firstDegree")
